@@ -1,8 +1,12 @@
 from dbtable import *
-
+import re
 class PeopleTable(DbTable):
+
     def table_name(self):
-        return self.dbconn.prefix + "people"
+        if re.search(r'^([a-zA-Z]|_)*$', self.dbconn.prefix):
+            return self.dbconn.prefix + "people"
+        else:
+            raise Exception('Myerror')
 
     def columns(self):
         return {"id": [ "SERIAL", "PRIMARY KEY"],
@@ -15,8 +19,8 @@ class PeopleTable(DbTable):
         sql = "SELECT * FROM " + self.table_name()
         sql += " ORDER BY "
         sql += ", ".join(self.primary_key())
-        sql += f" LIMIT 1 OFFSET {num - 1}"
+        sql += f" LIMIT 1 OFFSET %(d)s"
         cur = self.dbconn.conn.cursor()
-        cur.execute(sql)
+        cur.execute(sql, {'d':num-1})
         return cur.fetchone()       
     

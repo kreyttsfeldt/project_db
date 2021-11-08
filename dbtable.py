@@ -50,16 +50,16 @@ class DbTable:
     def insert_one(self, vals):
         for i in range(0, len(vals)):
             if vals[i]=='null':
-                continue
-            if type(vals[i]) == str:
-                vals[i] = "'" + vals[i] + "'"
-            else:
-                vals[i] = str(vals[i])
-        sql = "INSERT INTO " + self.table_name() + "("
-        sql += ", ".join(self.column_names_without_id()) + ") VALUES("
-        sql += ", ".join(vals) + ")"
+                vals[i]=None
+        # sql = "INSERT INTO " + self.table_name() + "("
+        # sql += ", ".join(self.column_names_without_id()) + ") VALUES("
+        # sql += ", ".join(vals) + ")"
+        sql=f'insert into {self.table_name()}({", ".join(self.column_names_without_id())}) values ' \
+            f'%s;'
         cur = self.dbconn.conn.cursor()
-        cur.execute(sql)
+        # query=cur.mogrify(sql, (tuple(vals),))
+        cur.execute(sql, (tuple(vals),))
+        # cur.execute(sql, (', '.join(vals),))
         self.dbconn.conn.commit()
         return
 

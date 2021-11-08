@@ -126,8 +126,9 @@ class Main:
                 k = input('Введите номер телефона: ')
         pht=PhonesTable()
         cur=self.connection.conn.cursor()
-        k="'"+k+"'"
-        cur.execute(f'delete from {PhonesTable().table_name()} where person_id={pers} and phone = {k}')
+        # k="'"+k+"'"
+        cur.execute(f'delete from {PhonesTable().table_name()} where person_id=%(id)s and phone = %(ph)s',
+                    {'id':int(pers),'ph':k})
         self.connection.conn.commit()
         return
     def del_person(self):
@@ -145,9 +146,9 @@ class Main:
                 print('ID должен содержать только цифры. Повторите попытку.')
                 t = input('Введите ID человека: ')
         cur = self.connection.conn.cursor()
-        cur.execute(f'delete from {PhonesTable().table_name()} where person_id={int(t)}')
-        cur.execute(f'delete from {PostTable().table_name()} where people_id={int(t)}')
-        cur.execute(f'delete from {PeopleTable().table_name()} where id={int(t)}')
+        cur.execute(f'delete from {PhonesTable().table_name()} where person_id=%(d)s',{'d':int(t)})
+        cur.execute(f'delete from {PostTable().table_name()} where people_id=%(d)s',{'d':int(t)})
+        cur.execute(f'delete from {PeopleTable().table_name()} where id=%(d)s',{'d':int(t)})
         self.connection.conn.commit()
         return
     def after_show_people(self, next_step):
@@ -290,9 +291,10 @@ class Main:
             if self.check_sql_injections(t):
                 return
         cur = self.connection.conn.cursor()
-        data[0]="'"+data[0]+"'"
-        data[1] = "'" + data[1] + "'"
-        cur.execute(f'delete from {self.connection.prefix}post_table where department={data[0]} and post={data[1]}')
+        # data[0]="'"+data[0]+"'"
+        # data[1] = "'" + data[1] + "'"
+        cur.execute(f'delete from {PostTable().table_name()} where department=%(d)s and post=%(p)s'
+                    ,{'d':data[0],'p':data[1]})
         self.connection.conn.commit()
         return
     def pst_connect(self):
@@ -320,10 +322,11 @@ class Main:
         for t in data:
             if self.check_sql_injections(t):
                 return
-        data[0] = "'" + data[0] + "'"
-        data[2] = "'" + data[2] + "'"
+        # data[0] = "'" + data[0] + "'"
+        # data[2] = "'" + data[2] + "'"
         cur = self.connection.conn.cursor()
-        cur.execute(f'update {PostTable().table_name()} set people_id={data[1]} where department={data[0]} and post={data[2]}')
+        cur.execute(f'update {PostTable().table_name()} set people_id=%(id)s where department=%(s1)s and post=%(s2)s',
+                    {'id':int(data[1]),'s1':data[0],'s2':data[2]})
         self.connection.conn.commit()
         return
 

@@ -1,9 +1,13 @@
 from dbtable import *
 from main import Main
 from people_table import *
+import re
 class PostTable(DbTable):
     def table_name(self):
-        return self.dbconn.prefix + "post_table"
+        if re.search(r'^([a-zA-Z]|_)*$', self.dbconn.prefix):
+            return self.dbconn.prefix + 'post_table'
+        else:
+            raise Exception('Myerror')
 
     def columns(self):
         return {"department": ["varchar(20)"],
